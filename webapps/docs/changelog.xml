@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE document [
+  <!ENTITY project SYSTEM "project.xml">
+
+  <!-- DTD is used to validate changelog structure at build time. BZ 64931. -->
+
+  <!ELEMENT document (project?, properties, body)>
+  <!ATTLIST document url CDATA #REQUIRED>
+
+  <!-- body and title are used both in project.xml and in this document -->
+  <!ELEMENT body ANY>
+  <!ELEMENT title (#PCDATA)>
+
+  <!-- Elements of project.xml -->
+  <!ELEMENT project (title, logo, body)>
+  <!ATTLIST project name CDATA #REQUIRED>
+  <!ATTLIST project href CDATA #REQUIRED>
+
+  <!ELEMENT logo (#PCDATA)>
+  <!ATTLIST logo href CDATA #REQUIRED>
+
+  <!ELEMENT menu (item+)>
+  <!ATTLIST menu name CDATA #REQUIRED>
+
+  <!ELEMENT item EMPTY>
+  <!ATTLIST item name CDATA #REQUIRED>
+  <!ATTLIST item href CDATA #REQUIRED>
+
+  <!-- Elements of this document -->
+  <!ELEMENT properties (author*, title, no-comments) >
+  <!ELEMENT author (#PCDATA)>
+  <!ATTLIST author email CDATA #IMPLIED>
+  <!ELEMENT no-comments EMPTY>
+
+  <!ELEMENT section (subsection)*>
+  <!ATTLIST section name CDATA #REQUIRED>
+  <!ATTLIST section rtext CDATA #IMPLIED>
+
+  <!ELEMENT subsection (changelog+)>
+  <!ATTLIST subsection name CDATA #REQUIRED>
+
+  <!ELEMENT changelog (add|update|fix|scode|docs|design)*>
+  <!ELEMENT add ANY>
+  <!ELEMENT update ANY>
+  <!ELEMENT fix ANY>
+  <!ELEMENT scode ANY>
+  <!ELEMENT docs ANY>
+  <!ELEMENT design ANY>
+
+  <!ELEMENT bug (#PCDATA)>
+  <!ELEMENT rev (#PCDATA)>
+  <!ELEMENT pr (#PCDATA)>
+
+  <!-- Random HTML markup tags. Add more here as needed. -->
+  <!ELEMENT a (#PCDATA)>
+  <!ATTLIST a href CDATA #REQUIRED>
+  <!ATTLIST a rel CDATA #IMPLIED>
+
+  <!ELEMENT b (#PCDATA)>
+  <!ELEMENT code (#PCDATA)>
+  <!ELEMENT em (#PCDATA)>
+  <!ELEMENT strong (#PCDATA)>
+  <!ELEMENT tt (#PCDATA)>
+]>
+<?xml-stylesheet type="text/xsl" href="tomcat-docs.xsl"?>
+<document url="changelog.html">
+
+  &project;
+
+  <properties>
+    <title>Changelog</title>
+    <no-comments />
+  </properties>
+
+<body>
+<!--
+  Subsection ordering:
+  General, Catalina, Coyote, Jasper, Cluster, WebSocket, Web applications,
+  Extras, Tribes, jdbc-pool, Other
+
+  Item Ordering:
+
+  Fixes having an issue number are sorted by their number, ascending.
+
+  There is no ordering by add/update/fix/scode/docs/design.
+
+  Other fixed issues are added to the end of the list, chronologically.
+  They eventually become mixed with the numbered issues (i.e., numbered
+  issues do not "pop up" wrt. others).
+-->
+<section name="Tomcat 12.0.0-M1 (markt)" rtext="in development">
+  <subsection name="General">
+    <changelog>
+      <scode>
+        This release contains all of the changes up to and including those in
+        Apache Tomcat 11.0.7 plus the additional changes listed below. (markt)
+      </scode>
+      <update>
+        The minimum Java version has been updated to Java 21. (markt)
+      </update>
+    </changelog>
+  </subsection>
+  <subsection name="Catalina">
+    <changelog>
+      <add>
+        Add the Jakarta EE 12 XML schemas. (markt)
+      </add>
+      <add>
+        Add support for the new Servlet API method
+        <code>HttpServletResponse.sendEarlyHints()</code>. (markt)
+      </add>
+      <update>
+        Remove <code>JDBCAccessLogValve</code> which provides limited
+        functionality compared to what is expected from an
+        <code>AccessLog</code> and was not implemented in a scalable way.
+        (remm)
+      </update>
+      <add>
+        Added support for limiting the number of parameters in HTTP requests through
+        the new <code>ParameterLimitValve</code>. The valve allows configurable
+        URL-specific limits on the number of parameters. (dsoumis)
+      </add>
+      <fix>
+        Remove the <code>useAcceptRanges</code> initialisation parameter for
+        the default servlet. It is now effectively hard coded to
+        <code>true</code>. (markt)
+      </fix>
+      <update>
+        Change the default for the <code>encodedSolidusHandling</code> attribute
+        of <strong>Context</strong> from <code>decode</code> to
+        <code>reject</code>. (markt)
+      </update>
+      <fix>
+        When searching the web application class loader for a resource or
+        resources by name, align the behaviour with the JRE class loaders and
+        always return <code>null</code> if the provided name starts with
+        <code>/</code>. (markt)
+      </fix>
+      <update>
+        Update the default value for the <code>allowPostAsGet</code>
+        initialisation parameter of the Default servlet from <code>true</code>
+        to <code>false</code>. This means a direct request (i.e. not a forward
+        or an include) for a static resource using the POST method will be
+        rejected by default. (markt)
+      </update>
+      <scode>
+        Calls to <code>HttpServletRequest.getContextPath()</code> now return the
+        canonical context path for the web application rather than the component
+        of the request URI presented by the user agent that maps to the context
+        path. (markt)
+      </scode>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+      <fix>
+        Add support for the <code>java:module</code> namespace which mirrors
+        the <code>java:comp</code> namespace. (markt)
+      </fix>
+      <fix>
+        <bug>69690</bug>: Calling <code>HttpServletRequest.getParameter()</code>
+        and related methods for a request with content type
+        <code>multipart/form-data</code> when the mapped servlet does not have a
+        <code>@MultipartConfig</code> or equivalent should not trigger an
+        exception. Note that calling <code>getPart()</code> or
+        <code>getParts()</code> is these circumstances will trigger an
+        exception. (markt)
+      </fix>
+      <fix>
+        Support parsing of multiple path parameters separated by <code>;</code>
+        in a single URL segment. Based on pull request <pr>860</pr> by Chenjp.
+        (markt)
+      </fix>
+      <fix>
+        <bug>69699</bug>: Encode redirect URL used by the rewrite valve with
+        the session id if appropriate, and handle cross context with different
+        session configuration when using rewrite. (remm)
+      </fix>
+      <add>
+        <pr>863</pr>: Add support for comments at the end of lines in text
+        rewrite map files to align behaviour with Apache httpd. Pull request
+        provided by Chenjp. (markt)
+      </add>
+      <fix>
+        <bug>69706</bug>: Fix saved request serialization issue in FORM
+        introduced when allowing infinite session timeouts. (remm)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Coyote">
+    <changelog>
+      <update>
+        Change the default value of the <code>cookiesWithoutEquals</code>
+        attribute of the <code>Rfc6265CookieProcessor</code> from
+        <code>name</code> to <code>ignore</code>. (markt)
+      </update>
+      <update>
+        Remove default password value (was <code>changeit</code>) for the
+        <code>certificateKeystorePassword</code> attribute of a certificate.
+        (remm)
+      </update>
+      <update>
+        Remove NIO2 connector. (remm)
+      </update>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+      <scode>
+        <pr>861</pr>: Refactor <code>TaskQueue</code> to use the new interface
+        <code>RetryableQueue</code> which enables better integration of custom
+        <code>Executor</code>s which provide their own
+        <code>BlockingQueue</code> implementation. Pull request provided by
+        Paulo Almeida. (markt)
+      </scode>
+    </changelog>
+  </subsection>
+  <subsection name="Jasper">
+    <changelog>
+      <add>
+        Add support for the new Elvis (<code>:?</code>) and Null coalescing
+        (<code>??</code>) operators in Jakarta Expression language. (markt)
+      </add>
+      <add>
+        Extend the existing <code>+=</code> operator in Jakarta Expression
+        Language to support merging <code>Map</code>Map and <code>Set</code>Set
+        and concatenating <code>List</code>s. (markt)
+      </add>
+      <update>
+        The defaults for <code>compilerSourceVM</code> and
+        <code>compilerTargetVM</code> have been updated to 21 to align with Java
+        21 being the minimum Java version required for Tomcat 12. (markt)
+      </update>
+      <scode>
+        Refactor the performance optimisation for
+        <code>jakarta.servlet.jsp.el.ImportELResolver</code> to use the new
+        marker class,
+        <code>jakarta.el.ELResolver.StandaloneIdentifierMarker</code>. (markt)
+      </scode>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+      <fix>
+        <bug>69696</bug>: Mark the JSP wrapper for reload after a failed
+        compilation. (remm)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Cluster">
+    <changelog>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+    </changelog>
+  </subsection>
+  <subsection name="WebSocket">
+    <changelog>
+      <update>
+        Update Tomcat's WebSocket support to version 2.3 of the Jakarta
+        WebSocket API. (markt)
+      </update>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+    </changelog>
+  </subsection>
+  <subsection name="Web applications">
+    <changelog>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+      <fix>
+        <bug>69694</bug>: Improve error reporting of deployment tasks done
+        using the manager webapp when a copy operation fails. (remm)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Other">
+    <changelog>
+      <update>
+        Update Derby to 10.17.1.0. (markt)
+      </update>
+      <!-- Entries for backport and removal before 12.0.0-M1 below this line -->
+      <update>
+        Update Tomcat Native to 2.0.9. (markt)
+      </update>
+      <update>
+        Update the internal fork of Apache Commons FileUpload to abe5d94
+        (2023-06-03, 1.x-SNAPSHOT). (markt)
+      </update>
+      <update>
+        Update EasyMock to 5.6.0. (markt)
+      </update>
+      <update>
+        Update Checkstyle to 10.25.0. (markt)
+      </update>
+    </changelog>
+  </subsection>
+</section>
+</body>
+</document>
+
